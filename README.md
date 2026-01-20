@@ -21,12 +21,13 @@ AudioFlow – Stay in the work flow and get things done while enjoying podcasts,
 ## ✨ Features
 
 - 🎧 **Audio-Only Mode** - Play video files with audio only, saving system resources
-- ⌨️ **Keyboard Controls** - Full control without touching the mouse
-- 🔀 **Smart Playback** - Random or sequential playback with history tracking
+- ⌨️ **Keyboard Controls** - Full control without touching the mouse using backtick (`) modifier
+- ⏸️ **Pause/Resume** - Pause and resume playback without losing your place
+- 🔀 **Smart Playback** - Random playback with intelligent history tracking
 - 📂 **Auto-Discovery** - Automatically finds all audio and video files in your folder
-- 🎚️ **Volume Control** - Precise volume adjustment with keyboard shortcuts
+- 🎚️ **Volume Control** - Precise volume adjustment with instant visual feedback
 - 🕒 **Navigation History** - Go back and forth through your listening history
-- 🎨 **Clean Interface** - Minimal, distraction-free terminal UI
+- 🎨 **Clean Interface** - Minimal, distraction-free terminal UI with smart file name display
 - 🇵🇸 **Free Palestine Support** - Built with love and solidarity
 
 ## 📋 Requirements
@@ -68,11 +69,14 @@ python audioflow.py
 
 | Shortcut | Action |
 |----------|--------|
-| `Ctrl + Right` | ⏩ Skip to next track |
-| `Ctrl + Left` | ⏪ Go back to previous track |
-| `Ctrl + Up` | 🔊 Increase volume (+1) |
-| `Ctrl + Down` | 🔉 Decrease volume (-1) |
-| `Esc` | ❌ Quit the player |
+| **` + Space** | ⏸️ Pause/Resume current track |
+| **` + Right** | ⏩ Skip to next track |
+| **` + Left** | ⏪ Go back to previous track |
+| **` + Up** | 🔊 Increase volume (+1) |
+| **` + Down** | 🔉 Decrease volume (-1) |
+| **` + Esc** | ❌ Quit the player |
+
+**Note:** The backtick (`) key is located above Tab and to the left of the number 1 on most keyboards.
 
 ## 📁 Project Structure
 
@@ -97,14 +101,14 @@ colorama>=0.4.6
 
 1. **Run AudioFlow** using the command above
 2. **Enter the folder path** containing your audio/video files
-3. **Choose audio-only mode** (type "yes") or full playback
+3. **Choose audio-only mode** (type "yes") or press Enter to skip for full playback
 4. **Use keyboard shortcuts** to control playback
 5. **Stay focused** on your work while enjoying your content!
 
 ### 📂 Supported File Formats
 
-**Audio:** MP3, WAV, M4A, AAC, FLAC, OGG  
-**Video:** MP4, MKV, AVI, MOV, WEBM
+**Audio:** MP3, WAV, OGG, FLAC  
+**Video:** MP4, MKV, AVI, MOV
 
 ## 🏷️ Releases
 
@@ -114,12 +118,16 @@ colorama>=0.4.6
 
 **Features:**
 - ✅ Audio-only mode for video files
-- ✅ Keyboard-driven navigation
-- ✅ Volume control with live feedback
+- ✅ Keyboard-driven navigation with backtick (`) modifier
+- ✅ Pause/Resume functionality with instant feedback
+- ✅ Volume control with real-time display
 - ✅ Playback history with back/forward navigation
 - ✅ Random file selection
+- ✅ Smart file name truncation for clean display
 - ✅ Clean, colorful terminal interface
 - ✅ Support for multiple audio/video formats
+- ✅ Error handling with retry mechanism for empty folders
+- ✅ VLC quiet mode to suppress unnecessary messages
 
 ## 💡 Use Cases
 
@@ -135,7 +143,7 @@ To create a standalone executable file that doesn't require Python:
 
 ```bash
 pip install pyinstaller
-pyinstaller --onefile --icon="audioflow.ico" audioflow.py
+pyinstaller --onefile --icon="icon.ico" audioflow.py
 ```
 
 The executable will be created in the `dist/` folder.
