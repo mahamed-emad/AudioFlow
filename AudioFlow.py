@@ -11,11 +11,12 @@ def clear_screen():
 
 def guide():
     msg = list(map(str.strip, """
-        ⏩ Ctrl + Right: Skip current track.
-        ⏪ Ctrl + Left: Go back to previous track.
-        🔊 Ctrl + Up: Increase volume (+1, max 100).
-        🔉 Ctrl + Down: Decrease volume (-1, min 0).
-        ❌ Esc: Quit the player.
+        ⏸️ ` + Space: Stop track.
+        ⏩ ` + Right: Skip track.
+        ⏪ ` + Left: back previous track.
+        🔊 ` + Up: Increase volume +1.
+        🔉 ` + Down: Decrease volume -1.
+        ❌ ` + Esc: Quit the player.
         """.split("\n")))
     print(f"{Fore.CYAN}", end="")
     for m in msg: print(m) if m else 1
@@ -26,29 +27,38 @@ def setting():
     path = input("Enter Path: ")
     choice = 1 if input("Listen to audio only? `YES`: ").strip().lower() == "yes" else 0
 
-    image = (".jpg", ".png", ".jpeg")
     video = (".mp4", ".mkv", ".avi", ".mov")
-    files = [
-        os.path.join(path, f)
-        for f in os.listdir(path)
-        if not f.lower().endswith(image)
-    ]
+    audio = (".mp3", ".wav", ".ogg", ".flac")
+    try:
+        files = [
+            os.path.join(path, f)
+            for f in os.listdir(path)
+            if f.lower().endswith(video + audio)
+        ]
+        if not files: assert ""
 
-    player = vlc.MediaPlayer()
-    volume = 50
-    player.audio_set_volume(volume)
+        player = vlc.MediaPlayer("--quiet")
+        volume = 50
+        player.audio_set_volume(volume)
+        vlc.Instance("--quiet")
+        return True, files, None, choice, video, player, volume, [], 0, 0
+    except: return ["empty"]
 
-    return files, None, choice, video, player, volume, [], 0
-
-def playing(user):
-
-    files, first_audio, choice, video, player, volume, history, pointer = user
-    item = random.choice(files) if not first_audio else first_audio
-
+def screen(item):
     clear_screen()
     guide()
     print(f"{Fore.RED}{" "*7}🎧 Playing...\n")
-    print(f"{Fore.CYAN}▶️", os.path.basename(item))
+    name = os.path.basename(item)
+    print(f"{Fore.CYAN}▶️", name if len(name) <= 20 else name[:20] + "...")
+
+def playing(user):
+
+    order, files, first_audio, choice, video, player, volume, history, pointer, last_oper = user
+    if order == "empty": return [order]
+    item = random.choice(files) if not first_audio else first_audio
+
+    screen(item)
+    if last_oper: print(last_oper)
 
     media = vlc.Media(item)
     if item.lower().endswith(video) and choice: media.add_option(":no-video")
@@ -65,37 +75,51 @@ def playing(user):
         state = player.get_state()
         if state in [vlc.State.Ended, vlc.State.Stopped, vlc.State.Error]: 
             pointer = len(history); first_audio = False
-            return [files, first_audio, choice, video, player, volume, history, pointer]
-        elif keyboard.is_pressed("ctrl+right"):
+            return [order, files, first_audio, choice, video, player, volume, history, pointer, last_oper]
+        elif keyboard.is_pressed(41) and keyboard.is_pressed("right"):
             pointer += 1
             if pointer <= len(history) - 1:
                 first_audio = history[pointer]
             else: pointer = len(history); first_audio = None
             player.stop()
-            print("⏩ Skipped")
-            return [files, first_audio, choice, video, player, volume, history, pointer]
-        elif keyboard.is_pressed("ctrl+left"):
+            screen(item)
+            last_oper = "⏩ Skipped"
+            return [order, files, first_audio, choice, video, player, volume, history, pointer, last_oper]
+        elif keyboard.is_pressed(41) and keyboard.is_pressed("left"):
             pointer -= 1
             pointer = min(max(0, pointer), len(history) - 1)
             first_audio = history[pointer]
             player.stop()
-            print("⏩ Back")
-            return [files, first_audio, choice, video, player, volume, history, pointer]
-        elif keyboard.is_pressed("ctrl+up"):
+            screen(item)
+            last_oper = "⏩ Back"
+            return [order, files, first_audio, choice, video, player, volume, history, pointer, last_oper]
+        elif keyboard.is_pressed(41) and keyboard.is_pressed("up"):
             volume = min(100, volume + 1)
             player.audio_set_volume(int(volume))
-            print(f"🔊 Volume: {volume}")
-        elif keyboard.is_pressed("ctrl+down"):
+            print(f"\r🔊 Volume: {volume}", end=" ", flush=True)
+        elif keyboard.is_pressed(41) and keyboard.is_pressed("down"):
             volume = max(0, volume - 1)
             player.audio_set_volume(int(volume))
-            print(f"🔊 Volume: {volume}")
-        elif keyboard.is_pressed("esc"): return 0
-        time.sleep(0.1)
+            print(f"\r🔊 Volume: {volume}", end=" ", flush=True)
+        elif keyboard.is_pressed(41) and keyboard.is_pressed("space"):
+            if player.is_playing():
+                player.pause()
+                print("\r⏸️ Paused", end=" ", flush=True)
+            else:
+                player.play()
+                print("\r▶️ Resumed", end=" ", flush=True)
+        elif keyboard.is_pressed(41) and keyboard.is_pressed("esc"):
+            player.pause()
+            return [0]
+        time.sleep(0.2)
 
-def main():
+while True:
     clear_screen()
     user = setting()
-    while user: user = playing(user)
-    print(f"{Fore.CYAN}\nExiting Program... 👋")
+    while user[0] is True: user = playing(user)
+    clear_screen()
+    msg_empty = "❌ No media found ❌\n-Type `YES` to another path: "
+    if user[0] == "empty" and input(msg_empty).strip().lower() in ["y", "yes"]: continue
+    print(f"{Fore.CYAN}\n    Exiting Program... 👋\n\n\n")
     time.sleep(3)
-main()
+    break
