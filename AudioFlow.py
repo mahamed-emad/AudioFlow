@@ -102,6 +102,7 @@ def playing(user):
             player.audio_set_volume(int(volume))
             print(f"\r🔊 Volume: {volume}", end=" ", flush=True)
         elif keyboard.is_pressed(41) and keyboard.is_pressed("space"):
+            if not choice: screen(item)
             if player.is_playing():
                 player.pause()
                 print("\r⏸️ Paused", end=" ", flush=True)
@@ -109,7 +110,7 @@ def playing(user):
                 player.play()
                 print("\r▶️ Resumed", end=" ", flush=True)
         elif keyboard.is_pressed(41) and keyboard.is_pressed("esc"):
-            player.pause()
+            if player.is_playing(): player.pause()
             return [0]
         time.sleep(0.2)
 
